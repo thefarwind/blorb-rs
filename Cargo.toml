@@ -1,0 +1,6 @@
+[package]
+name = "blorb"
+version = "0.1.0"
+authors = ["Bryan E. Barnhart <TheBryanB@hotmail.com>"]
+
+[dependencies]
