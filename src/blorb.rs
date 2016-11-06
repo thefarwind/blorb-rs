@@ -88,7 +88,6 @@ pub enum Chunk {
 }
 
 pub struct Blorb<R: Read + Seek> {
-    pub form: String,
     pub len: u32,
     index: ResourceIndex,
     file: R,
@@ -102,16 +101,12 @@ impl<R: Read + Seek> Blorb<R> {
     pub fn from_file(file: R) -> Result<Blorb<R>, Error> {
         let mut file = file;
 
-        // Check that the first byte is the word "FORM"
-        let tag = try!(Blorb::load_4bw(&mut file));
-        assert_eq!(&tag, "FORM");
-
-        // Get the length of the blorb
-        let len = try!(file.read_u32::<BigEndian>());
+        let form = try!(Blorb::load_chunk_data(&mut file));
+        assert_eq!(&form.id, "FORM");
 
         // Check that the form type is IFRS
-        let form = try!(Blorb::load_4bw(&mut file));
-        assert_eq!(&form, "IFRS");
+        let id = try!(Blorb::load_4bw(&mut file));
+        assert_eq!(&id, "IFRS");
 
         let index = if let Chunk::ResourceIndex{index} =
                 try!(Blorb::load_chunk(&mut file)) {
@@ -124,8 +119,7 @@ impl<R: Read + Seek> Blorb<R> {
         };
 
         Ok(Blorb{
-            form: form,
-            len: len,
+            len: form.len,
             index: index,
             file: file,
         })
