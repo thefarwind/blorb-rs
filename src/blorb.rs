@@ -117,7 +117,10 @@ impl<R: Read + Seek> Blorb<R> {
                 try!(Blorb::load_chunk(&mut file)) {
             index
         } else {
-            panic!("corrupt file -- first chunk not resource index");
+            return Err(Error::new(
+                ErrorKind::InvalidInput,
+                "could not locate index"
+            ));
         };
 
         Ok(Blorb{
@@ -181,7 +184,10 @@ impl<R: Read + Seek> Blorb<R> {
             "Snd " => Usage::Snd,
             "Data" => Usage::Data,
             "Exec" => Usage::Exec,
-            _ => panic!("unrecognized usage type")
+            _ => return Err(Error::new(
+                ErrorKind::InvalidInput,
+                "could not identify index entry usage"
+            )),
         };
 
         Ok(IndexEntry{usage: usage, num: num, start: start})
