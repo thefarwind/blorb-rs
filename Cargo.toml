@@ -1,7 +1,27 @@
 [package]
 name = "blorb"
 version = "0.1.0"
-authors = ["Bryan E. Barnhart <TheBryanB@hotmail.com>"]
+authors = ["Bryan E. Barnhart <bryan.e.barnhart@gmail.com>"]
+description = "A package for interacting with blorb files."
+
+documentation = "https://docs.rs/blorb"
+repository = "https://github.com/thefarwind/blorb-rs.git"
+
+readme = "README.md"
+
+keywords = [
+	"IF",
+	"Interactive Fiction",
+	"blorb",
+	"gblorb",
+	"zblorb",
+	"glulx",
+	"Z-code",
+	"ADRIFT",
+]
+
+license = "MIT"
+license-file = "LICENSE"
 
 [dependencies]
 byteorder = "^0.5.3"
