@@ -3,6 +3,7 @@ use std::io::{Error, ErrorKind, Read, Seek, SeekFrom};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
+
 /// The usage information for an `IndexEntry`.
 #[derive(Debug)]
 pub enum Usage {
@@ -49,6 +50,7 @@ pub struct ChunkData {
     len: u32,
 }
 
+
 /// Representation for loaded blorb chunks
 pub enum Chunk {
 
@@ -62,36 +64,42 @@ pub enum Chunk {
     /// This chunk is mandatory and must be the first chunk in the form.
     ResourceIndex{index: ResourceIndex},
 
-    /// Identifier: 'IFmd',
+    /// Identifier: 'IFmd'.
     /// Contains xml metadata content for the IF.
     Metadata{info: String},
 
-    /// Identifier: 'Fspec',
+    /// Identifier: 'Fspec'.
     /// Contains a reference to a frontispiece image.
     /// This chunk is optional.
     Frontispiece{num: u32},
 
-    /// Identifier: 'GLUL',
-    /// Contains Glulx executable
+    /// Identifier: 'GLUL'.
+    /// Contains Glulx executable.
     /// This is a executable resource chunk.
     Glulx{code: Vec<u8>},
 
-    /// Identifier: 'PNG ',
-    /// Contains a PNG image
+    /// Identifier: 'PNG '.
+    /// Contains a PNG image.
     /// This is a picture resource chunk.
     Png{data: Vec<u8>},
 
-    /// Identifier: 'JPEG',
-    /// Contains a JPEG image
+    /// Identifier: 'JPEG'.
+    /// Contains a JPEG image.
     /// This is a picture resource chunk.
     Jpeg{data: Vec<u8>},
 }
 
+
+/// Access point for lazy loading blorb contents. This struct contains
+/// the methods to load resources from the provided blorb. This does not
+/// cache the results.
 pub struct Blorb<R: Read + Seek> {
+    /// The length of the IFRS chunk
     pub len: u32,
     index: ResourceIndex,
     file: R,
 }
+
 
 impl<R: Read + Seek> Blorb<R> {
 
@@ -141,6 +149,7 @@ impl<R: Read + Seek> Blorb<R> {
         Blorb::load_chunk(&mut self.file)
     }
 
+    /// Load a `Chunk` from the file.
     fn load_chunk(file: &mut R) -> Result<Chunk, Error> {
         let meta = try!(Blorb::load_chunk_data(file));
 
@@ -168,6 +177,7 @@ impl<R: Read + Seek> Blorb<R> {
         }
     }
 
+    /// Load an `IndexEntry` from the file.
     fn load_index_entry(file: &mut R) -> Result<IndexEntry, Error> {
         let usage = try!(Blorb::load_4bw(file));
         let num = try!(file.read_u32::<BigEndian>());
@@ -187,6 +197,8 @@ impl<R: Read + Seek> Blorb<R> {
         Ok(IndexEntry{usage: usage, num: num, start: start})
     }
 
+    /// Read a chunk and return the metadata in the form of a
+    /// `ChunkData`.
     fn load_chunk_data(file: &mut R) -> Result<ChunkData, Error> {
         let id = try!(Blorb::load_4bw(file));
         let len = try!(file.read_u32::<BigEndian>());
