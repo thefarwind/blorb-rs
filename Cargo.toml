@@ -11,11 +11,7 @@ readme = "README.md"
 
 keywords = [
 	"IF",
-	"Interactive",
-	"Fiction",
 	"blorb",
-	"gblorb",
-	"zblorb",
 	"glulx",
 	"Z-code",
 	"ADRIFT",
