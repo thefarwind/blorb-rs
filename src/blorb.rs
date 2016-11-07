@@ -7,11 +7,11 @@ use byteorder::{BigEndian, ReadBytesExt};
 /// The usage information for an `IndexEntry`.
 #[derive(Debug)]
 pub enum Usage {
-    /// Indentifier: 'Pict'.
+    /// Identifier: 'Pict'.
     /// Indicates the resource is an image.
     Pict,
 
-    /// Indentifier: 'Snd '.
+    /// Identifier: 'Snd '.
     /// Indicates the resource is a sound.
     Snd,
 
@@ -19,7 +19,7 @@ pub enum Usage {
     /// Indicates the resource is some data.
     Data,
 
-    /// Indentifier: 'Exec'.
+    /// Identifier: 'Exec'.
     /// Indicates the resource is an executable.
     Exec,
 }
