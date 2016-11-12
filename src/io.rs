@@ -179,6 +179,7 @@ trait ReadBlorbExt : Read {
             b"ADVS" => self.read_adv_sys(meta.len),
             b"AGT " => self.read_agt(meta.len),
             b"ALAN" => self.read_alan(meta.len),
+            b"BINA" => self.read_binary(meta.len),
             b"EXEC" => self.read_exec(meta.len),
             b"Fspc" => self.read_frontispiece(),
             b"GLUL" => self.read_glulx(meta.len),
@@ -364,6 +365,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Jpeg{data: data})
+    }
+
+    /// Read a `Chunk::Binary` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_binary(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Binary{data: data})
     }
 
     /// Read a `Chunk::Unknown` from the blorb file. Returns

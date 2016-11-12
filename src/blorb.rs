@@ -177,4 +177,9 @@ pub enum Chunk {
     /// Contains a JPEG image.
     /// This is a picture resource chunk.
     Jpeg{data: Vec<u8>},
+
+    /// Identifier `b"BINA"`
+    /// Contains binary data.
+    /// this is a data resource chunk.
+    Binary{data: Vec<u8>},
 }
