@@ -5,6 +5,7 @@ A library for using blorb files in rust
 This library is an implementation of the Blorb 2.0.4 specification. The specification can be found
 at the following web address. A copy of the specification can also be found in the top level of
 this repository.
+
 * http://www.eblong.com/zarf/blorb/blorb.html
 
 Blorbs are a resource file type used in Interactive Fiction (IF). They bundle together images,
@@ -45,9 +46,11 @@ enum, allowing the handling of the loaded resource to be done with a `match`.
 The Blorb crate can be build using stable rust 1.13 and later.
 
 To build, run the following command:
+
 * `cargo build`
 
 Before any changes are merged in, the following checks should be made:
+
 * run `cargo build` and verify completion without any warnings
 * run `cargo test` and verify completion without any warnings or test failures
 * run `cargo doc` and verify completion without any issues
