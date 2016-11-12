@@ -109,15 +109,15 @@ impl<R: Read + Seek> Blorb<R> {
     pub fn from_file(file: R) -> Result<Blorb<R>, Error> {
         let mut file = file;
 
-        let form = try!(Blorb::load_chunk_data(&mut file));
+        let form = Blorb::load_chunk_data(&mut file)?;
         assert_eq!(&form.id, "FORM");
 
         // Check that the form type is IFRS
-        let id = try!(Blorb::load_4bw(&mut file));
+        let id = Blorb::load_4bw(&mut file)?;
         assert_eq!(&id, "IFRS");
 
         let index = if let Chunk::ResourceIndex{index} =
-                try!(Blorb::load_chunk(&mut file)) {
+                Blorb::load_chunk(&mut file)? {
             index
         } else {
             return Err(Error::new(
@@ -144,21 +144,21 @@ impl<R: Read + Seek> Blorb<R> {
                 ))
             },
         };
-        try!(self.file.seek(SeekFrom::Start(entry.start as u64)));
+        self.file.seek(SeekFrom::Start(entry.start as u64))?;
 
         Blorb::load_chunk(&mut self.file)
     }
 
     /// Load a `Chunk` from the file.
     fn load_chunk(file: &mut R) -> Result<Chunk, Error> {
-        let meta = try!(Blorb::load_chunk_data(file));
+        let meta = Blorb::load_chunk_data(file)?;
 
         match meta.id.as_ref() {
             "RIdx" => {
-                let num = try!(file.read_u32::<BigEndian>());
+                let num = file.read_u32::<BigEndian>()?;
                 let mut entries = HashMap::with_capacity(num as usize);
                 for _ in 0..num {
-                    let entry = try!(Blorb::load_index_entry(file));
+                    let entry = Blorb::load_index_entry(file)?;
                     entries.insert(entry.num as usize, entry);
                 }
 
@@ -166,12 +166,12 @@ impl<R: Read + Seek> Blorb<R> {
             },
             "GLUL" => {
                 let mut data = Vec::with_capacity(meta.len as usize);
-                try!(file.take(meta.len as u64).read_to_end(&mut data));
+                file.take(meta.len as u64).read_to_end(&mut data)?;
                 Ok(Chunk::Glulx{code: data})
             },
             _ => {
                 let mut data = Vec::with_capacity(meta.len as usize);
-                try!(file.take(meta.len as u64).read_to_end(&mut data));
+                file.take(meta.len as u64).read_to_end(&mut data)?;
                 Ok(Chunk::Unknown{meta: meta, data: data})
             },
         }
@@ -179,9 +179,9 @@ impl<R: Read + Seek> Blorb<R> {
 
     /// Load an `IndexEntry` from the file.
     fn load_index_entry(file: &mut R) -> Result<IndexEntry, Error> {
-        let usage = try!(Blorb::load_4bw(file));
-        let num = try!(file.read_u32::<BigEndian>());
-        let start = try!(file.read_u32::<BigEndian>());
+        let usage = Blorb::load_4bw(file)?;
+        let num = file.read_u32::<BigEndian>()?;
+        let start = file.read_u32::<BigEndian>()?;
 
         let usage = match usage.as_ref() {
             "Pict" => Usage::Pict,
@@ -200,15 +200,15 @@ impl<R: Read + Seek> Blorb<R> {
     /// Read a chunk and return the metadata in the form of a
     /// `ChunkData`.
     fn load_chunk_data(file: &mut R) -> Result<ChunkData, Error> {
-        let id = try!(Blorb::load_4bw(file));
-        let len = try!(file.read_u32::<BigEndian>());
+        let id = Blorb::load_4bw(file)?;
+        let len = file.read_u32::<BigEndian>()?;
         Ok(ChunkData{id: id, len: len})
     }
 
     /// Load a 4 byte ASCII word from the file
     fn load_4bw(file: &mut R) -> Result<String, Error> {
         let mut id = String::with_capacity(0x4);
-        try!(file.take(4).read_to_string(&mut id));
+        file.take(4).read_to_string(&mut id)?;
         Ok(id)
     }
 }

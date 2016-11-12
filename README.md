@@ -42,7 +42,7 @@ If the blorb contains an executable resource, it will be returned from calling
 enum, allowing the handling of the loaded resource to be done with a `match`.
 
 ## Build Instructions
-The Blorb crate can be build using stable rust 1.12.1 and later.
+The Blorb crate can be build using stable rust 1.13 and later.
 
 To build, run the following command:
 * `cargo build`
