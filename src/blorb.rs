@@ -1,7 +1,39 @@
 use std::collections::HashMap;
-use std::io::{Error, ErrorKind, Read, Seek, SeekFrom};
 
-use byteorder::{BigEndian, ReadBytesExt};
+// Metadata Structs
+////////////////////////////////////////////////////////////////////////
+
+/// Metadata struct for `FORM` chunks. Contains the length of the chunk
+/// and the form id of the chunk. Provides slightly more info into a
+/// `FORM` chunk so that use and contained data can be determined.
+///
+/// **NOTE**: The `len` includes the 4 bytes in `id`. The remaining
+/// length of the chunk after the `id` is `len - 4`.
+#[derive(Debug)]
+pub struct FormData {
+    pub len: u32,
+    pub id: [u8; 0x4],
+}
+
+
+/// Container for chunk metadata. Used for identifying a chunk without
+/// loading the full chunk into memory.
+#[derive(Debug)]
+pub struct ChunkData {
+    pub id: [u8; 0x4],
+    pub len: u32,
+}
+
+
+impl From<FormData> for ChunkData {
+    fn from(form_data: FormData) -> ChunkData {
+        ChunkData{len: form_data.len, id: *b"FORM"}
+    }
+}
+
+
+// Chunk Structs
+////////////////////////////////////////////////////////////////////////
 
 
 /// The usage information for an `IndexEntry`.
@@ -31,7 +63,7 @@ pub enum Usage {
 pub struct IndexEntry {
     pub usage: Usage,
     pub num: u32,
-    start: u32,
+    pub start: u32,
 }
 
 
@@ -39,15 +71,6 @@ pub struct IndexEntry {
 #[derive(Debug)]
 pub struct ResourceIndex {
     pub entries: HashMap<usize, IndexEntry>,
-}
-
-
-/// Container for chunk metadata. Used for identifying a chunk without
-/// loading the full chunk into memory.
-#[derive(Debug)]
-pub struct ChunkData {
-    pub id: String,
-    len: u32,
 }
 
 
@@ -87,128 +110,4 @@ pub enum Chunk {
     /// Contains a JPEG image.
     /// This is a picture resource chunk.
     Jpeg{data: Vec<u8>},
-}
-
-
-/// Access point for lazy loading blorb contents. This struct contains
-/// the methods to load resources from the provided blorb. This does not
-/// cache the results.
-pub struct Blorb<R: Read + Seek> {
-    /// The length of the IFRS chunk
-    pub len: u32,
-    index: ResourceIndex,
-    file: R,
-}
-
-
-impl<R: Read + Seek> Blorb<R> {
-
-    /// Creates a new Blorb from a file. The code goes through the
-    /// given game file, validates the file type, and extracts the
-    /// basic game objects for the blorb.
-    pub fn from_file(file: R) -> Result<Blorb<R>, Error> {
-        let mut file = file;
-
-        let form = Blorb::load_chunk_data(&mut file)?;
-        assert_eq!(&form.id, "FORM");
-
-        // Check that the form type is IFRS
-        let id = Blorb::load_4bw(&mut file)?;
-        assert_eq!(&id, "IFRS");
-
-        let index = if let Chunk::ResourceIndex{index} =
-                Blorb::load_chunk(&mut file)? {
-            index
-        } else {
-            return Err(Error::new(
-                ErrorKind::InvalidInput,
-                "could not locate index"
-            ));
-        };
-
-        Ok(Blorb{
-            len: form.len,
-            index: index,
-            file: file,
-        })
-    }
-
-    /// loads a resource using the given index entry.
-    pub fn load_resource(&mut self, num: usize) -> Result<Chunk, Error> {
-        let entry = match self.index.entries.get(&num) {
-            Some(entry) => entry,
-            None => {
-                return Err(Error::new(
-                    ErrorKind::NotFound,
-                    "resource not found"
-                ))
-            },
-        };
-        self.file.seek(SeekFrom::Start(entry.start as u64))?;
-
-        Blorb::load_chunk(&mut self.file)
-    }
-
-    /// Load a `Chunk` from the file.
-    fn load_chunk(file: &mut R) -> Result<Chunk, Error> {
-        let meta = Blorb::load_chunk_data(file)?;
-
-        match meta.id.as_ref() {
-            "RIdx" => {
-                let num = file.read_u32::<BigEndian>()?;
-                let mut entries = HashMap::with_capacity(num as usize);
-                for _ in 0..num {
-                    let entry = Blorb::load_index_entry(file)?;
-                    entries.insert(entry.num as usize, entry);
-                }
-
-                Ok(Chunk::ResourceIndex{index: ResourceIndex{entries:entries}})
-            },
-            "GLUL" => {
-                let mut data = Vec::with_capacity(meta.len as usize);
-                file.take(meta.len as u64).read_to_end(&mut data)?;
-                Ok(Chunk::Glulx{code: data})
-            },
-            _ => {
-                let mut data = Vec::with_capacity(meta.len as usize);
-                file.take(meta.len as u64).read_to_end(&mut data)?;
-                Ok(Chunk::Unknown{meta: meta, data: data})
-            },
-        }
-    }
-
-    /// Load an `IndexEntry` from the file.
-    fn load_index_entry(file: &mut R) -> Result<IndexEntry, Error> {
-        let usage = Blorb::load_4bw(file)?;
-        let num = file.read_u32::<BigEndian>()?;
-        let start = file.read_u32::<BigEndian>()?;
-
-        let usage = match usage.as_ref() {
-            "Pict" => Usage::Pict,
-            "Snd " => Usage::Snd,
-            "Data" => Usage::Data,
-            "Exec" => Usage::Exec,
-            _ => return Err(Error::new(
-                ErrorKind::InvalidInput,
-                "could not identify index entry usage"
-            )),
-        };
-
-        Ok(IndexEntry{usage: usage, num: num, start: start})
-    }
-
-    /// Read a chunk and return the metadata in the form of a
-    /// `ChunkData`.
-    fn load_chunk_data(file: &mut R) -> Result<ChunkData, Error> {
-        let id = Blorb::load_4bw(file)?;
-        let len = file.read_u32::<BigEndian>()?;
-        Ok(ChunkData{id: id, len: len})
-    }
-
-    /// Load a 4 byte ASCII word from the file
-    fn load_4bw(file: &mut R) -> Result<String, Error> {
-        let mut id = String::with_capacity(0x4);
-        file.take(4).read_to_string(&mut id)?;
-        Ok(id)
-    }
 }

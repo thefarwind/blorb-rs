@@ -30,17 +30,15 @@ There are three primary interfaces to the blorb filetype provided in this librar
     * Provides methods to access blorb resources in a lazy manner.
 
 ### Blorb Cursor
-The blorb cursor is implemented by the `Blorb` Structure. to create a `Blorb`, use the
-`Blorb<R: Read + Seek>::from_file(file: R)` function. The function constructs a `Blorb` object
-which manages moved file.
+The blorb cursor is structure which provides lazy access to the contents of a blorb.
+BlorbCursors are created from blorbs, using the `BlorbCursor<R: Read + Seek>::from_file(src: R)` function.
 
-The `Blorb` object, when built, does some basic validation of the blorb file, and loads the
-resource index and other blorb metadata from the file. It provides a `Blorb::load_resource(usize)`
+The `BlorbCursor` object, when built, does validates the structure of the blorb file,
+and loads the metadata from the blorb. It provides a `BlorbCursor::load_resource(u32)`
 method which can then be used to lazily load a blorb resource, such as an image or sound.
 
 If the blorb contains an executable resource, it will be returned from calling
-`Blorb::load_resource(0)`. The returned value from calling this method is a variant of the `Chunk`
-enum, allowing the handling of the loaded resource to be done with a `match`.
+`BlorbCursor::load_resource(0)`. The returned value from calling this method is a variant of the `Chunk` enum, allowing the handling of the loaded resource to be done with a `match`.
 
 ## Build Instructions
 The Blorb crate can be build using stable rust 1.13 and later.
