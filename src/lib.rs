@@ -19,8 +19,10 @@
 extern crate byteorder;
 
 mod blorb;
+mod io;
 
 pub use blorb::*;
+pub use io::*;
 
 #[cfg(test)]
 mod tests {
