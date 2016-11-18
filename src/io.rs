@@ -21,10 +21,12 @@ use blorb::{
 
 
 /// Provides access to blorb file contents without loading the full file
-/// into memory. When constructed, using the `BlorbCursor::from_file`
-/// method, the `BlorbCursor` takes control of an object implementing the
+/// into memory.
+///
+/// When constructed, using the `BlorbCursor::from_file` method, the
+/// `BlorbCursor` takes control of a struct implementing the
 /// `std::io::Read` and `std::io::Seek` traits. The `BlorbCursor` then
-/// validates the Blorb file, and loads the resource index and other
+/// validates this input blorb file, and loads the resource index and other
 /// metadata objects.
 ///
 /// When `BlorbCurosr::load_resource` is called, the given index is used
@@ -32,6 +34,7 @@ use blorb::{
 /// and seek to that location. Then, it loads the given resource from
 /// the file and returns it to the caller.
 pub struct BlorbCursor<R: Read + Seek + ?Sized> {
+    /// The length of the blorb, minus the 8 byte chunk header.
     pub len: u32,
     index: ResourceIndex,
     file: R,
