@@ -175,6 +175,7 @@ trait ReadBlorbExt : Read {
     /// the data from the blorb.
     fn read_from_chunk_data(&mut self, meta: ChunkData) -> Result<Chunk> {
         match &meta.id {
+            b"ALAN" => self.read_alan(meta.len),
             b"Fspc" => self.read_frontispiece(),
             b"GLUL" => self.read_glulx(meta.len),
             b"HUGO" => self.read_hugo(meta.len),
@@ -271,6 +272,14 @@ trait ReadBlorbExt : Read {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Hugo{code: code})
+    }
+
+    /// Read a `Chunk::Alan` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_alan(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Alan{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns

@@ -133,6 +133,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Hugo{code: Vec<u8>},
 
+    /// Identifier: `b"ALAN"`.
+    /// Contains Alan executable.
+    /// This is an executable resource chunk.
+    Alan{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.
