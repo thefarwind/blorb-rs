@@ -123,6 +123,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Tads2{code: Vec<u8>},
 
+    /// Identifier: `b"TAD3"`.
+    /// Contains TADS 3 executable.
+    /// This is an executable resource chunk.
+    Tads3{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.

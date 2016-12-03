@@ -182,6 +182,7 @@ trait ReadBlorbExt : Read {
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
             b"TAD2" => self.read_tads2(meta.len),
+            b"TAD3" => self.read_tads3(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
         }
@@ -253,6 +254,14 @@ trait ReadBlorbExt : Read {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Tads2{code: code})
+    }
+
+    /// Read a `Chunk::Tads3` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_tads3(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Tads3{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns
