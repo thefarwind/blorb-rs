@@ -138,6 +138,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Alan{code: Vec<u8>},
 
+    /// Identifier: `b"ADRI"`.
+    /// Contains ADRIFT executable.
+    /// This is an executable resource chunk.
+    Adrift{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.
