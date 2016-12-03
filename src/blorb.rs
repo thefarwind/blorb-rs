@@ -108,6 +108,11 @@ pub enum Chunk {
     /// This chunk is optional.
     Frontispiece{num: u32},
 
+    /// Identifier: `b"ZCOD"`.
+    /// Contains Z-code executable.
+    /// This is an executable resource chunk.
+    ZCode{code: Vec<u8>},
+
     /// Identifier: `b"GLUL"`.
     /// Contains Glulx executable.
     /// This is an executable resource chunk.

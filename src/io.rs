@@ -181,6 +181,7 @@ trait ReadBlorbExt : Read {
             b"JPEG" => self.read_jpeg(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
+            b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
         }
     }
@@ -227,6 +228,14 @@ trait ReadBlorbExt : Read {
         let entries = entries;
 
         Ok(Chunk::ResourceIndex{index: ResourceIndex{entries: entries}})
+    }
+
+    /// Read a `Chunk::ZCode` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_zcode(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::ZCode{code: code})
     }
 
     /// Read a `Chunk::Glulx` data from the blorb file. Returns
