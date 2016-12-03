@@ -118,6 +118,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Glulx{code: Vec<u8>},
 
+    /// Identifier: `b"TAD2"`.
+    /// Contains TADS 2 executable.
+    /// This is an executable resource chunk.
+    Tads2{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.
