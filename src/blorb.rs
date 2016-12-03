@@ -110,7 +110,7 @@ pub enum Chunk {
 
     /// Identifier: `b"GLUL"`.
     /// Contains Glulx executable.
-    /// This is a executable resource chunk.
+    /// This is an executable resource chunk.
     Glulx{code: Vec<u8>},
 
     /// Identifier: `b"PNG "`.
