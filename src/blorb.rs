@@ -143,6 +143,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Adrift{code: Vec<u8>},
 
+    /// Identifier: `b"LEVE"`.
+    /// Contains Level 9 executable.
+    /// This is an executable resource chunk.
+    Level9{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.

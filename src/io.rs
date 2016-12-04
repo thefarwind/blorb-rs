@@ -182,6 +182,7 @@ trait ReadBlorbExt : Read {
             b"HUGO" => self.read_hugo(meta.len),
             b"IFmd" => self.read_metadata(meta.len),
             b"JPEG" => self.read_jpeg(meta.len),
+            b"LEVE" => self.read_level9(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
             b"TAD2" => self.read_tads2(meta.len),
@@ -289,6 +290,14 @@ trait ReadBlorbExt : Read {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Adrift{code: code})
+    }
+
+    /// Read a `Chunk::Level9` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_level9(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Level9{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns
