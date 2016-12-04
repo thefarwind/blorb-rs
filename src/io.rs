@@ -176,6 +176,7 @@ trait ReadBlorbExt : Read {
     fn read_from_chunk_data(&mut self, meta: ChunkData) -> Result<Chunk> {
         match &meta.id {
             b"ADRI" => self.read_adrift(meta.len),
+            b"ADVS" => self.read_adv_sys(meta.len),
             b"AGT " => self.read_agt(meta.len),
             b"ALAN" => self.read_alan(meta.len),
             b"Fspc" => self.read_frontispiece(),
@@ -316,6 +317,14 @@ trait ReadBlorbExt : Read {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::MagneticScrolls{code: code})
+    }
+
+    /// Read a `Chunk::AdvSys` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_adv_sys(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::AdvSys{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns
