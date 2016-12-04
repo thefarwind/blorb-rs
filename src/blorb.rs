@@ -178,6 +178,11 @@ pub enum Chunk {
     /// This is a picture resource chunk.
     Jpeg{data: Vec<u8>},
 
+    /// Identifier: `b"Rect"`.
+    /// Contains a rectangle placeholder for an image.
+    /// This is a picture resource chunk.
+    Rectangle{width: u32, height: u32},
+
     /// Identifier `b"BINA"`
     /// Contains binary data.
     /// this is a data resource chunk.

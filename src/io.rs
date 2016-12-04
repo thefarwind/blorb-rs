@@ -190,6 +190,7 @@ trait ReadBlorbExt : Read {
             b"MAGS" => self.read_magnetic_scrolls(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
+            b"Rect" => self.read_rectangle(),
             b"TAD2" => self.read_tads2(meta.len),
             b"TAD3" => self.read_tads3(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
@@ -365,6 +366,15 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Jpeg{data: data})
+    }
+
+    /// Read a `Chunk::Rectangle` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_rectangle(&mut self) -> Result<Chunk> {
+        Ok(Chunk::Rectangle{
+            width: self.read_u32::<BigEndian>()?,
+            height: self.read_u32::<BigEndian>()?,
+        })
     }
 
     /// Read a `Chunk::Binary` data from the blorb file. Returns
