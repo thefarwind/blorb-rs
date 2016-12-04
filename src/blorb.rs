@@ -183,6 +183,11 @@ pub enum Chunk {
     /// This is a picture resource chunk.
     Rectangle{width: u32, height: u32},
 
+    /// Identifier: `b"OGGV"`.
+    /// Contains ogg data.
+    /// This is a sound resource chunk.
+    Ogg{data: Vec<u8>},
+
     /// Identifier `b"BINA"`
     /// Contains binary data.
     /// this is a data resource chunk.
