@@ -108,10 +108,65 @@ pub enum Chunk {
     /// This chunk is optional.
     Frontispiece{num: u32},
 
+    /// Identifier: `b"ZCOD"`.
+    /// Contains Z-code executable.
+    /// This is an executable resource chunk.
+    ZCode{code: Vec<u8>},
+
     /// Identifier: `b"GLUL"`.
     /// Contains Glulx executable.
     /// This is an executable resource chunk.
     Glulx{code: Vec<u8>},
+
+    /// Identifier: `b"TAD2"`.
+    /// Contains TADS 2 executable.
+    /// This is an executable resource chunk.
+    Tads2{code: Vec<u8>},
+
+    /// Identifier: `b"TAD3"`.
+    /// Contains TADS 3 executable.
+    /// This is an executable resource chunk.
+    Tads3{code: Vec<u8>},
+
+    /// Identifier: `b"HUGO"`.
+    /// Contains Hugo executable.
+    /// This is an executable resource chunk.
+    Hugo{code: Vec<u8>},
+
+    /// Identifier: `b"ALAN"`.
+    /// Contains Alan executable.
+    /// This is an executable resource chunk.
+    Alan{code: Vec<u8>},
+
+    /// Identifier: `b"ADRI"`.
+    /// Contains ADRIFT executable.
+    /// This is an executable resource chunk.
+    Adrift{code: Vec<u8>},
+
+    /// Identifier: `b"LEVE"`.
+    /// Contains Level 9 executable.
+    /// This is an executable resource chunk.
+    Level9{code: Vec<u8>},
+
+    /// Identifier: `b"AGT "`.
+    /// Contains AGT executable.
+    /// This is an executable resource chunk.
+    Agt{code: Vec<u8>},
+
+    /// Identifier: `b"MAGS"`.
+    /// Contains Magnetic Scrolls executable.
+    /// This is an executable resource chunk.
+    MagneticScrolls{code: Vec<u8>},
+
+    /// Identifier: `b"ADVS"`.
+    /// Contains AdvSys executable.
+    /// This is an executable resource chunk.
+    AdvSys{code: Vec<u8>},
+
+    /// Identifier: `b"EXEC"`.
+    /// Contains a native executable.
+    /// This is an executable resource chunk.
+    Exec{code: Vec<u8>},
 
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.

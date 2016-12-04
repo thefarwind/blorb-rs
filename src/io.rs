@@ -175,12 +175,23 @@ trait ReadBlorbExt : Read {
     /// the data from the blorb.
     fn read_from_chunk_data(&mut self, meta: ChunkData) -> Result<Chunk> {
         match &meta.id {
+            b"ADRI" => self.read_adrift(meta.len),
+            b"ADVS" => self.read_adv_sys(meta.len),
+            b"AGT " => self.read_agt(meta.len),
+            b"ALAN" => self.read_alan(meta.len),
+            b"EXEC" => self.read_exec(meta.len),
             b"Fspc" => self.read_frontispiece(),
             b"GLUL" => self.read_glulx(meta.len),
+            b"HUGO" => self.read_hugo(meta.len),
             b"IFmd" => self.read_metadata(meta.len),
             b"JPEG" => self.read_jpeg(meta.len),
+            b"LEVE" => self.read_level9(meta.len),
+            b"MAGS" => self.read_magnetic_scrolls(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
+            b"TAD2" => self.read_tads2(meta.len),
+            b"TAD3" => self.read_tads3(meta.len),
+            b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
         }
     }
@@ -229,12 +240,100 @@ trait ReadBlorbExt : Read {
         Ok(Chunk::ResourceIndex{index: ResourceIndex{entries: entries}})
     }
 
+    /// Read a `Chunk::ZCode` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_zcode(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::ZCode{code: code})
+    }
+
     /// Read a `Chunk::Glulx` data from the blorb file. Returns
     /// a `std::io::Error` if the blorb data is not valid.
     fn read_glulx(&mut self, len: u32) -> Result<Chunk> {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Glulx{code: code})
+    }
+
+    /// Read a `Chunk::Tads2` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_tads2(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Tads2{code: code})
+    }
+
+    /// Read a `Chunk::Tads3` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_tads3(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Tads3{code: code})
+    }
+
+    /// Read a `Chunk::Hugo` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_hugo(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Hugo{code: code})
+    }
+
+    /// Read a `Chunk::Alan` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_alan(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Alan{code: code})
+    }
+
+    /// Read a `Chunk::Adrift` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_adrift(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Adrift{code: code})
+    }
+
+    /// Read a `Chunk::Level9` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_level9(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Level9{code: code})
+    }
+
+    /// Read a `Chunk::Agt` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_agt(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Agt{code: code})
+    }
+
+    /// Read a `Chunk::MagneticScrolls` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_magnetic_scrolls(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::MagneticScrolls{code: code})
+    }
+
+    /// Read a `Chunk::AdvSys` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_adv_sys(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::AdvSys{code: code})
+    }
+
+    /// Read a `Chunk::Exec` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_exec(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Exec{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns
