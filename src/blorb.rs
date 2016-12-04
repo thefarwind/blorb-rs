@@ -202,4 +202,9 @@ pub enum Chunk {
     /// Contains MIDI data.
     /// this is a sound resource chunk for ADRIFT blorbs.
     Midi{data: Vec<u8>},
+
+    /// Identifier `b"MP3 "`
+    /// Contains MP3 data.
+    /// this is a sound resource chunk for ADRIFT blorbs.
+    Mp3{data: Vec<u8>},
 }
