@@ -187,4 +187,9 @@ pub enum Chunk {
     /// Contains binary data.
     /// this is a data resource chunk.
     Binary{data: Vec<u8>},
+
+    /// Identifier `b"GIF "`
+    /// Contains GIF data.
+    /// this is a picture resource chunk for ADRIFT blorbs.
+    Gif{data: Vec<u8>},
 }
