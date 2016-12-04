@@ -163,6 +163,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     AdvSys{code: Vec<u8>},
 
+    /// Identifier: `b"EXEC"`.
+    /// Contains a native executable.
+    /// This is an executable resource chunk.
+    Exec{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.

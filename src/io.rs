@@ -179,6 +179,7 @@ trait ReadBlorbExt : Read {
             b"ADVS" => self.read_adv_sys(meta.len),
             b"AGT " => self.read_agt(meta.len),
             b"ALAN" => self.read_alan(meta.len),
+            b"EXEC" => self.read_exec(meta.len),
             b"Fspc" => self.read_frontispiece(),
             b"GLUL" => self.read_glulx(meta.len),
             b"HUGO" => self.read_hugo(meta.len),
@@ -325,6 +326,14 @@ trait ReadBlorbExt : Read {
         let code = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::AdvSys{code: code})
+    }
+
+    /// Read a `Chunk::Exec` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_exec(&mut self, len: u32) -> Result<Chunk> {
+        let code = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Exec{code: code})
     }
 
     /// Read a `Chunk::Frontispiece` data from the blorb file. Returns
