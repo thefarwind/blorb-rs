@@ -148,6 +148,11 @@ pub enum Chunk {
     /// This is an executable resource chunk.
     Level9{code: Vec<u8>},
 
+    /// Identifier: `b"AGT "`.
+    /// Contains AGT executable.
+    /// This is an executable resource chunk.
+    Agt{code: Vec<u8>},
+
     /// Identifier: `b"PNG "`.
     /// Contains a PNG image.
     /// This is a picture resource chunk.
