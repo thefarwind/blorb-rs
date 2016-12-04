@@ -189,6 +189,7 @@ trait ReadBlorbExt : Read {
             b"JPEG" => self.read_jpeg(meta.len),
             b"LEVE" => self.read_level9(meta.len),
             b"MAGS" => self.read_magnetic_scrolls(meta.len),
+            b"MIDI" => self.read_midi(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
             b"Rect" => self.read_rectangle(),
@@ -401,6 +402,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Wav{data: data})
+    }
+
+    /// Read a `Chunk::Midi` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_midi(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Midi{data: data})
     }
 
     /// Read a `Chunk::Unknown` from the blorb file. Returns
