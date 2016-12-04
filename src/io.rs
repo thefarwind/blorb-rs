@@ -194,6 +194,7 @@ trait ReadBlorbExt : Read {
             b"Rect" => self.read_rectangle(),
             b"TAD2" => self.read_tads2(meta.len),
             b"TAD3" => self.read_tads3(meta.len),
+            b"WAV " => self.read_wav(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
         }
@@ -392,6 +393,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Gif{data: data})
+    }
+
+    /// Read a `Chunk::Wav` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_wav(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Wav{data: data})
     }
 
     /// Read a `Chunk::Unknown` from the blorb file. Returns

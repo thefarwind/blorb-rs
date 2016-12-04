@@ -192,4 +192,9 @@ pub enum Chunk {
     /// Contains GIF data.
     /// this is a picture resource chunk for ADRIFT blorbs.
     Gif{data: Vec<u8>},
+
+    /// Identifier `b"WAV "`
+    /// Contains WAV data.
+    /// this is a sound resource chunk for ADRIFT blorbs.
+    Wav{data: Vec<u8>},
 }
