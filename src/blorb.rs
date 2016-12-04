@@ -193,6 +193,11 @@ pub enum Chunk {
     /// This is a sound resource chunk.
     Mod{data: Vec<u8>},
 
+    /// Identifier: `b"SONG"`.
+    /// Contains song data.
+    /// This is a deprecated sound resource chunk.
+    Song{data: Vec<u8>},
+
     /// Identifier `b"BINA"`
     /// Contains binary data.
     /// this is a data resource chunk.
