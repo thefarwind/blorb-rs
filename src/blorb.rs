@@ -94,6 +94,12 @@ pub enum Chunk {
     /// chunks, and this type will be used to do so when necessary.
     Unknown{meta: ChunkData, data: Vec<u8>},
 
+    /// Chunk returned when the loaded chunk type is of type form but
+    /// the underlying form type is unable to be identified. Per
+    /// specification, the machine must ignore unknown chunks, and this
+    /// type will be used to do so when necessary with forms.
+    UnknownForm{meta: FormData, data: Vec<u8>},
+
     /// Identifier: `b"RIdx"`.
     /// Contains a resource index for the IF.
     /// This chunk is mandatory and must be the first chunk in the blorb.

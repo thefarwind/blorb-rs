@@ -181,6 +181,7 @@ trait ReadBlorbExt : Read {
             b"ALAN" => self.read_alan(meta.len),
             b"BINA" => self.read_binary(meta.len),
             b"EXEC" => self.read_exec(meta.len),
+            b"FORM" => self.read_form(meta.len),
             b"Fspc" => self.read_frontispiece(),
             b"GIF " => self.read_gif(meta.len),
             b"GLUL" => self.read_glulx(meta.len),
@@ -202,6 +203,13 @@ trait ReadBlorbExt : Read {
             b"WAV " => self.read_wav(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
+        }
+    }
+
+    fn read_form(&mut self, len: u32) -> Result<Chunk> {
+        let meta = FormData{len: len, id: self.read_id()?};
+        match &meta.id {
+            _ => self.read_unknown_form(meta),
         }
     }
 
@@ -454,6 +462,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(meta.len)?;
         if meta.len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Unknown{meta: meta, data: data})
+    }
+
+    /// Read a `Chunk::UnknownForm` from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_unknown_form(&mut self, meta: FormData) -> Result<Chunk> {
+        let data = self.read_exact_vec(meta.len - 0x4)?;
+        if meta.len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::UnknownForm{meta: meta, data: data})
     }
 }
 
