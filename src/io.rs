@@ -190,6 +190,7 @@ trait ReadBlorbExt : Read {
             b"LEVE" => self.read_level9(meta.len),
             b"MAGS" => self.read_magnetic_scrolls(meta.len),
             b"MIDI" => self.read_midi(meta.len),
+            b"MOD " => self.read_mod(meta.len),
             b"MP3 " => self.read_mp3(meta.len),
             b"OGGV" => self.read_ogg(meta.len),
             b"PNG " => self.read_png(meta.len),
@@ -388,6 +389,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Ogg{data: data})
+    }
+
+    /// Read a `Chunk::Mod` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_mod(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Mod{data: data})
     }
 
     /// Read a `Chunk::Binary` data from the blorb file. Returns

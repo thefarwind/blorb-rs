@@ -188,6 +188,11 @@ pub enum Chunk {
     /// This is a sound resource chunk.
     Ogg{data: Vec<u8>},
 
+    /// Identifier: `b"MOD "`.
+    /// Contains MOD data.
+    /// This is a sound resource chunk.
+    Mod{data: Vec<u8>},
+
     /// Identifier `b"BINA"`
     /// Contains binary data.
     /// this is a data resource chunk.
