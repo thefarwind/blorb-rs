@@ -8,7 +8,11 @@ use std::io::{
     SeekFrom
 };
 
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{
+    BigEndian,
+    ByteOrder,
+    ReadBytesExt,
+};
 
 use blorb::{
     Chunk,
@@ -209,6 +213,7 @@ trait ReadBlorbExt : Read {
     fn read_form(&mut self, len: u32) -> Result<Chunk> {
         let meta = FormData{len: len, id: self.read_id()?};
         match &meta.id {
+            b"AIFF" => self.read_aiff(meta.len),
             _ => self.read_unknown_form(meta),
         }
     }
@@ -390,6 +395,22 @@ trait ReadBlorbExt : Read {
             width: self.read_u32::<BigEndian>()?,
             height: self.read_u32::<BigEndian>()?,
         })
+    }
+
+    // XXX: This is done really inefficiently.
+    /// Read a `Chunk::Aiff` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_aiff(&mut self, len: u32) -> Result<Chunk> {
+        let mut data = Vec::<u8>::with_capacity((len + 0x8) as usize);
+        data.extend_from_slice(b"FORM");
+        data.extend_from_slice(&[0x0;0x4]);
+        BigEndian::write_u32(&mut data[0x4..0x8], len);
+        data.extend_from_slice(b"AIFF");
+        data.append(&mut self.read_exact_vec(len - 0x4)?);
+        let data = data;
+
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Aiff{data: data})
     }
 
     /// Read a `Chunk::Ogg` data from the blorb file. Returns

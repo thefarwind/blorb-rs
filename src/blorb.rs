@@ -189,6 +189,11 @@ pub enum Chunk {
     /// This is a picture resource chunk.
     Rectangle{width: u32, height: u32},
 
+    /// Identifier: `b"AIFF"`.
+    /// Contains AIFF data.
+    /// This is a sound resource form.
+    Aiff{data: Vec<u8>},
+
     /// Identifier: `b"OGGV"`.
     /// Contains ogg data.
     /// This is a sound resource chunk.
