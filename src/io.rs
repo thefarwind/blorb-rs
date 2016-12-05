@@ -204,6 +204,7 @@ trait ReadBlorbExt : Read {
             b"SONG" => self.read_song(meta.len),
             b"TAD2" => self.read_tads2(meta.len),
             b"TAD3" => self.read_tads3(meta.len),
+            b"TEXT" => self.read_text(meta.len),
             b"WAV " => self.read_wav(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
@@ -435,6 +436,14 @@ trait ReadBlorbExt : Read {
         let data = self.read_exact_vec(len)?;
         if len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Song{data: data})
+    }
+
+    /// Read a `Chunk::Text` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_text(&mut self, len: u32) -> Result<Chunk> {
+        let text = self.read_exact_string(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Text{text: text})
     }
 
     /// Read a `Chunk::Binary` data from the blorb file. Returns

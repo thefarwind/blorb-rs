@@ -209,6 +209,11 @@ pub enum Chunk {
     /// This is a deprecated sound resource chunk.
     Song{data: Vec<u8>},
 
+    /// Identifier `b"TEXT"`
+    /// Contains latin-1 or utf-8 text data.
+    /// this is a data resource chunk.
+    Text{text: String},
+
     /// Identifier `b"BINA"`
     /// Contains binary data.
     /// this is a data resource chunk.
