@@ -8,7 +8,11 @@ use std::io::{
     SeekFrom
 };
 
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{
+    BigEndian,
+    ByteOrder,
+    ReadBytesExt,
+};
 
 use blorb::{
     Chunk,
@@ -179,20 +183,39 @@ trait ReadBlorbExt : Read {
             b"ADVS" => self.read_adv_sys(meta.len),
             b"AGT " => self.read_agt(meta.len),
             b"ALAN" => self.read_alan(meta.len),
+            b"BINA" => self.read_binary(meta.len),
             b"EXEC" => self.read_exec(meta.len),
+            b"FORM" => self.read_form(meta.len),
             b"Fspc" => self.read_frontispiece(),
+            b"GIF " => self.read_gif(meta.len),
             b"GLUL" => self.read_glulx(meta.len),
             b"HUGO" => self.read_hugo(meta.len),
             b"IFmd" => self.read_metadata(meta.len),
             b"JPEG" => self.read_jpeg(meta.len),
             b"LEVE" => self.read_level9(meta.len),
             b"MAGS" => self.read_magnetic_scrolls(meta.len),
+            b"MIDI" => self.read_midi(meta.len),
+            b"MOD " => self.read_mod(meta.len),
+            b"MP3 " => self.read_mp3(meta.len),
+            b"OGGV" => self.read_ogg(meta.len),
             b"PNG " => self.read_png(meta.len),
             b"RIdx" => self.read_resource_index(meta.len),
+            b"Rect" => self.read_rectangle(),
+            b"SONG" => self.read_song(meta.len),
             b"TAD2" => self.read_tads2(meta.len),
             b"TAD3" => self.read_tads3(meta.len),
+            b"TEXT" => self.read_text(meta.len),
+            b"WAV " => self.read_wav(meta.len),
             b"ZCOD" => self.read_zcode(meta.len),
             _ => self.read_unknown(meta),
+        }
+    }
+
+    fn read_form(&mut self, len: u32) -> Result<Chunk> {
+        let meta = FormData{len: len, id: self.read_id()?};
+        match &meta.id {
+            b"AIFF" => self.read_aiff(meta.len),
+            _ => self.read_unknown_form(meta),
         }
     }
 
@@ -366,12 +389,117 @@ trait ReadBlorbExt : Read {
         Ok(Chunk::Jpeg{data: data})
     }
 
+    /// Read a `Chunk::Rectangle` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_rectangle(&mut self) -> Result<Chunk> {
+        Ok(Chunk::Rectangle{
+            width: self.read_u32::<BigEndian>()?,
+            height: self.read_u32::<BigEndian>()?,
+        })
+    }
+
+    // XXX: This is done really inefficiently.
+    /// Read a `Chunk::Aiff` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_aiff(&mut self, len: u32) -> Result<Chunk> {
+        let mut data = Vec::<u8>::with_capacity((len + 0x8) as usize);
+        data.extend_from_slice(b"FORM");
+        data.extend_from_slice(&[0x0;0x4]);
+        BigEndian::write_u32(&mut data[0x4..0x8], len);
+        data.extend_from_slice(b"AIFF");
+        data.append(&mut self.read_exact_vec(len - 0x4)?);
+        let data = data;
+
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Aiff{data: data})
+    }
+
+    /// Read a `Chunk::Ogg` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_ogg(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Ogg{data: data})
+    }
+
+    /// Read a `Chunk::Mod` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_mod(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Mod{data: data})
+    }
+
+    /// Read a `Chunk::Song` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_song(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Song{data: data})
+    }
+
+    /// Read a `Chunk::Text` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_text(&mut self, len: u32) -> Result<Chunk> {
+        let text = self.read_exact_string(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Text{text: text})
+    }
+
+    /// Read a `Chunk::Binary` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_binary(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Binary{data: data})
+    }
+
+    /// Read a `Chunk::Gif` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_gif(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Gif{data: data})
+    }
+
+    /// Read a `Chunk::Wav` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_wav(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Wav{data: data})
+    }
+
+    /// Read a `Chunk::Midi` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_midi(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Midi{data: data})
+    }
+
+    /// Read a `Chunk::Mp3` data from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_mp3(&mut self, len: u32) -> Result<Chunk> {
+        let data = self.read_exact_vec(len)?;
+        if len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::Mp3{data: data})
+    }
+
     /// Read a `Chunk::Unknown` from the blorb file. Returns
     /// a `std::io::Error` if the blorb data is not valid.
     fn read_unknown(&mut self, meta: ChunkData) -> Result<Chunk> {
         let data = self.read_exact_vec(meta.len)?;
         if meta.len & 1 == 1 {self.read_exact(&mut [0x0])?};
         Ok(Chunk::Unknown{meta: meta, data: data})
+    }
+
+    /// Read a `Chunk::UnknownForm` from the blorb file. Returns
+    /// a `std::io::Error` if the blorb data is not valid.
+    fn read_unknown_form(&mut self, meta: FormData) -> Result<Chunk> {
+        let data = self.read_exact_vec(meta.len - 0x4)?;
+        if meta.len & 1 == 1 {self.read_exact(&mut [0x0])?};
+        Ok(Chunk::UnknownForm{meta: meta, data: data})
     }
 }
 

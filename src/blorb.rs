@@ -94,6 +94,12 @@ pub enum Chunk {
     /// chunks, and this type will be used to do so when necessary.
     Unknown{meta: ChunkData, data: Vec<u8>},
 
+    /// Chunk returned when the loaded chunk type is of type form but
+    /// the underlying form type is unable to be identified. Per
+    /// specification, the machine must ignore unknown chunks, and this
+    /// type will be used to do so when necessary with forms.
+    UnknownForm{meta: FormData, data: Vec<u8>},
+
     /// Identifier: `b"RIdx"`.
     /// Contains a resource index for the IF.
     /// This chunk is mandatory and must be the first chunk in the blorb.
@@ -177,4 +183,59 @@ pub enum Chunk {
     /// Contains a JPEG image.
     /// This is a picture resource chunk.
     Jpeg{data: Vec<u8>},
+
+    /// Identifier: `b"Rect"`.
+    /// Contains a rectangle placeholder for an image.
+    /// This is a picture resource chunk.
+    Rectangle{width: u32, height: u32},
+
+    /// Identifier: `b"AIFF"`.
+    /// Contains AIFF data.
+    /// This is a sound resource form.
+    Aiff{data: Vec<u8>},
+
+    /// Identifier: `b"OGGV"`.
+    /// Contains ogg data.
+    /// This is a sound resource chunk.
+    Ogg{data: Vec<u8>},
+
+    /// Identifier: `b"MOD "`.
+    /// Contains MOD data.
+    /// This is a sound resource chunk.
+    Mod{data: Vec<u8>},
+
+    /// Identifier: `b"SONG"`.
+    /// Contains song data.
+    /// This is a deprecated sound resource chunk.
+    Song{data: Vec<u8>},
+
+    /// Identifier `b"TEXT"`
+    /// Contains latin-1 or utf-8 text data.
+    /// this is a data resource chunk.
+    Text{text: String},
+
+    /// Identifier `b"BINA"`
+    /// Contains binary data.
+    /// this is a data resource chunk.
+    Binary{data: Vec<u8>},
+
+    /// Identifier `b"GIF "`
+    /// Contains GIF data.
+    /// this is a picture resource chunk for ADRIFT blorbs.
+    Gif{data: Vec<u8>},
+
+    /// Identifier `b"WAV "`
+    /// Contains WAV data.
+    /// this is a sound resource chunk for ADRIFT blorbs.
+    Wav{data: Vec<u8>},
+
+    /// Identifier `b"MIDI"`
+    /// Contains MIDI data.
+    /// this is a sound resource chunk for ADRIFT blorbs.
+    Midi{data: Vec<u8>},
+
+    /// Identifier `b"MP3 "`
+    /// Contains MP3 data.
+    /// this is a sound resource chunk for ADRIFT blorbs.
+    Mp3{data: Vec<u8>},
 }
