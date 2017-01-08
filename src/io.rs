@@ -77,14 +77,39 @@ impl<R: Read + Seek> BlorbCursor<R> {
     /// while loading the resource into memory, if the loaded data is
     /// invalid, or if a resource is requested which is not identified
     /// in the `ResourceIndex`.
-    pub fn load_resource(&mut self, index: u32) -> Result<Chunk> {
-        let entry = match self.index.entries.get(&(index as usize)) {
-            Some(entry) => entry,
-            None => return Err(Error::new(ErrorKind::NotFound,
-                "no entry associated with the given index")),
+    pub fn load_resource(&mut self, usage: Usage, index: u32) -> Result<Chunk> {
+        let start = match usage {
+            Usage::Pict => {
+                match self.index.pictures.get(&(index as usize)) {
+                    Some(entry) => entry.start,
+                    None => return Err(Error::new(ErrorKind::NotFound,
+                        "no entry associated with the given index")),
+                }
+            },
+            Usage::Snd => {
+                match self.index.sounds.get(&(index as usize)) {
+                    Some(entry) => entry.start,
+                    None => return Err(Error::new(ErrorKind::NotFound,
+                        "no entry associated with the given index")),
+                }
+            },
+            Usage::Data => {
+                match self.index.data.get(&(index as usize)) {
+                    Some(entry) => entry.start,
+                    None => return Err(Error::new(ErrorKind::NotFound,
+                        "no entry associated with the given index")),
+                }
+            },
+            Usage::Exec => {
+                match self.index.exec {
+                    Some(ref entry) => entry.start,
+                    None => return Err(Error::new(ErrorKind::NotFound,
+                        "no entry associated with the given index")),
+                }
+            }
         };
 
-        self.file.seek(SeekFrom::Start(entry.start as u64))?;
+        self.file.seek(SeekFrom::Start(start as u64))?;
         (&mut self.file).read_chunk()
     }
 }
@@ -253,14 +278,33 @@ trait ReadBlorbExt : Read {
         }
 
         // retrieve entries and store in hashmap based on index
-        let mut entries = HashMap::with_capacity(num as usize);
+        let mut pictures = HashMap::new();
+        let mut sounds = HashMap::new();
+        let mut data = HashMap::new();
+        let mut exec = None;
         for _ in 0..num {
             let entry = self.read_index_entry()?;
-            entries.insert(entry.num as usize, entry);
+            match entry.usage {
+                Usage::Pict => pictures.insert(entry.num as usize, entry),
+                Usage::Snd => sounds.insert(entry.num as usize, entry),
+                Usage::Data => data.insert(entry.num as usize, entry),
+                Usage::Exec => {
+                    exec = Some(entry);
+                    None
+                },
+            };
         }
-        let entries = entries;
+        let pictures = pictures;
+        let sounds = sounds;
+        let data = data;
+        let exec = exec;
 
-        Ok(Chunk::ResourceIndex{index: ResourceIndex{entries: entries}})
+        Ok(Chunk::ResourceIndex{index: ResourceIndex{
+            pictures: pictures,
+            sounds: sounds,
+            data: data,
+            exec: exec,
+        }})
     }
 
     /// Read a `Chunk::ZCode` data from the blorb file. Returns

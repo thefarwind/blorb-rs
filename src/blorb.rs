@@ -80,9 +80,17 @@ pub struct IndexEntry {
 /// Container for list of resource index entries.
 #[derive(Debug)]
 pub struct ResourceIndex {
-    /// a map of index value of a resource to the index entry of the
+    /// a map of index value of a picture to the index entry of the
     /// resource.
-    pub entries: HashMap<usize, IndexEntry>,
+    pub pictures: HashMap<usize, IndexEntry>,
+    /// a map of index value of a sound to the index entry of the
+    /// resource.
+    pub sounds: HashMap<usize, IndexEntry>,
+    /// a map of index value of some data to the index entry of the
+    /// resource.
+    pub data: HashMap<usize, IndexEntry>,
+    /// an optional containing the exec index entry, if it is present
+    pub exec: Option<IndexEntry>,
 }
 
 
